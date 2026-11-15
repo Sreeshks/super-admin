@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, computed_field, model_validator
 
 
 # 1. Company Profile
@@ -169,8 +169,8 @@ class ServiceCreate(BaseModel):
     full_description: str | None = None
     featured_image: str | None = None
     gallery_images: list[str] | None = Field(default_factory=list)
-    regular_price: float = Field(gt=0)
-    discounted_price: float | None = Field(None, ge=0)
+    regular_price: float | None = None
+    discounted_price: float | None = None
     currency: str = Field(default="USD", max_length=10)
     duration_minutes: int | None = Field(None, ge=1)
     is_featured: bool = False
@@ -178,6 +178,31 @@ class ServiceCreate(BaseModel):
     status: str = Field(default="active", pattern="^(active|inactive)$")
     seo_title: str | None = None
     seo_description: str | None = None
+
+    # Aliases accepted from Company Admin UI:
+    price: float | None = None
+    offer_price: float | None = None
+    image: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "price" in data and not data.get("regular_price"):
+                data["regular_price"] = data.get("price")
+            if "offer_price" in data and not data.get("discounted_price"):
+                data["discounted_price"] = data.get("offer_price")
+            if "image" in data and not data.get("featured_image"):
+                data["featured_image"] = data.get("image")
+            if "description" in data and not data.get("short_description"):
+                data["short_description"] = data.get("description")
+            if "is_active" in data and not data.get("status"):
+                data["status"] = "active" if data.get("is_active") else "inactive"
+            if not data.get("regular_price"):
+                data["regular_price"] = 0.0
+        return data
 
 
 class ServiceUpdate(BaseModel):
@@ -197,6 +222,28 @@ class ServiceUpdate(BaseModel):
     status: str | None = Field(None, pattern="^(active|inactive)$")
     seo_title: str | None = None
     seo_description: str | None = None
+
+    price: float | None = None
+    offer_price: float | None = None
+    image: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_update_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "price" in data and not data.get("regular_price"):
+                data["regular_price"] = data.get("price")
+            if "offer_price" in data and not data.get("discounted_price"):
+                data["discounted_price"] = data.get("offer_price")
+            if "image" in data and not data.get("featured_image"):
+                data["featured_image"] = data.get("image")
+            if "description" in data and not data.get("short_description"):
+                data["short_description"] = data.get("description")
+            if "is_active" in data and not data.get("status"):
+                data["status"] = "active" if data.get("is_active") else "inactive"
+        return data
 
 
 class ServiceResponse(BaseModel):
@@ -220,6 +267,31 @@ class ServiceResponse(BaseModel):
     seo_description: str | None = None
     created_at: datetime
     updated_at: datetime
+
+    @computed_field
+    @property
+    def price(self) -> float:
+        return self.regular_price
+
+    @computed_field
+    @property
+    def offer_price(self) -> float | None:
+        return self.discounted_price
+
+    @computed_field
+    @property
+    def image(self) -> str | None:
+        return self.featured_image
+
+    @computed_field
+    @property
+    def description(self) -> str | None:
+        return self.short_description or self.full_description
+
+    @computed_field
+    @property
+    def is_active(self) -> bool:
+        return self.status == "active"
 
     model_config = ConfigDict(from_attributes=True)
 

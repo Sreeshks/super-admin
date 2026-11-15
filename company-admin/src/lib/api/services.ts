@@ -20,8 +20,16 @@ export interface ServiceListParams {
 
 export const servicesApi = {
   list: async (params?: ServiceListParams): Promise<PaginatedResponse<Service>> => {
+    const cleanParams: Record<string, unknown> = {};
+    if (params) {
+      Object.entries(params).forEach(([key, val]) => {
+        if (val !== "" && val !== undefined && val !== null) {
+          cleanParams[key] = val;
+        }
+      });
+    }
     const res = await apiClient.get<PaginatedResponse<Service>>("/admin/services", {
-      params,
+      params: cleanParams,
     });
     return res.data;
   },

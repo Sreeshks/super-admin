@@ -43,9 +43,9 @@ export default function ServicesPage() {
   const [params, setParams] = useState<ServiceListParams>({
     page: 1,
     page_size: 10,
-    search: "",
-    category_id: "",
-    status: "",
+    search: undefined,
+    category_id: undefined,
+    status: undefined,
   });
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -146,14 +146,14 @@ export default function ServicesPage() {
       category_id: s.category_id,
       name: s.name,
       slug: s.slug,
-      description: s.description || "",
-      image: s.image || "",
-      duration_minutes: s.duration_minutes,
-      price: s.price,
-      offer_price: s.offer_price ?? undefined,
+      description: s.description || (s as any).short_description || "",
+      image: s.image || (s as any).featured_image || "",
+      duration_minutes: s.duration_minutes || 45,
+      price: s.price ?? (s as any).regular_price ?? 0,
+      offer_price: (s.offer_price ?? (s as any).discounted_price) ?? undefined,
       is_featured: s.is_featured,
-      is_active: s.is_active,
-      display_order: s.display_order,
+      is_active: s.is_active ?? ((s as any).status === "active"),
+      display_order: s.display_order || 1,
     });
     setModalOpen(true);
   };
@@ -295,53 +295,65 @@ export default function ServicesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {services.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {s.image ? (
-                            <img
-                              src={s.image}
-                              alt={s.name}
-                              className="h-10 w-10 rounded-lg object-cover border border-slate-200"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs uppercase">
-                              <Scissors className="w-4 h-4" />
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-bold text-sm text-slate-900">{s.name}</p>
-                            {s.is_featured && (
-                              <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
-                                Featured
-                              </span>
+                  {services.map((s) => {
+                    const svcPrice = s.price ?? (s as any).regular_price ?? 0;
+                    const svcOfferPrice = s.offer_price ?? (s as any).discounted_price;
+                    const svcImage = s.image || (s as any).featured_image;
+                    const svcCategoryName =
+                      categories?.find((c) => c.id === s.category_id)?.name ||
+                      s.category?.name ||
+                      "General";
+                    const svcActive = s.is_active ?? ((s as any).status === "active");
+
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            {svcImage ? (
+                              <img
+                                src={svcImage}
+                                alt={s.name}
+                                className="h-10 w-10 rounded-lg object-cover border border-slate-200"
+                              />
+                            ) : (
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs uppercase">
+                                <Scissors className="w-4 h-4" />
+                              </div>
                             )}
+                            <div>
+                              <p className="font-bold text-sm text-slate-900">{s.name}</p>
+                              {s.is_featured && (
+                                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                                  Featured
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell className="text-xs font-semibold text-slate-700">
-                        {s.category?.name || "General"}
-                      </TableCell>
+                        <TableCell className="text-xs font-semibold text-slate-700">
+                          {svcCategoryName}
+                        </TableCell>
 
-                      <TableCell className="text-xs text-slate-500">
-                        {s.duration_minutes} mins
-                      </TableCell>
+                        <TableCell className="text-xs text-slate-500">
+                          {s.duration_minutes || 45} mins
+                        </TableCell>
 
-                      <TableCell className="text-xs font-bold text-slate-900">
-                        {formatCurrency(s.price, s.currency || profile?.currency || "OMR")}
-                      </TableCell>
+                        <TableCell className="text-xs font-bold text-slate-900">
+                          {formatCurrency(svcPrice, s.currency || profile?.currency || "OMR")}
+                        </TableCell>
 
-                      <TableCell className="text-xs font-bold text-emerald-700">
-                        {s.offer_price ? formatCurrency(s.offer_price, s.currency || profile?.currency || "OMR") : "-"}
-                      </TableCell>
+                        <TableCell className="text-xs font-bold text-emerald-700">
+                          {svcOfferPrice
+                            ? formatCurrency(svcOfferPrice, s.currency || profile?.currency || "OMR")
+                            : "-"}
+                        </TableCell>
 
-                      <TableCell>
-                        <Badge variant={s.is_active ? "success" : "secondary"}>
-                          {s.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
+                        <TableCell>
+                          <Badge variant={svcActive ? "success" : "secondary"}>
+                            {svcActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
 
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
@@ -366,7 +378,8 @@ export default function ServicesPage() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                })}
                 </TableBody>
               </Table>
             )}

@@ -30,7 +30,7 @@ async def list_services(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str | None = Query(None),
-    category_id: uuid.UUID | None = Query(None),
+    category_id: str | None = Query(None),
     status: str | None = Query(None),
     is_featured: bool | None = Query(None),
     sort_by: str = Query("created_at"),
@@ -39,13 +39,23 @@ async def list_services(
     _=Depends(require_roles(RoleEnum.COMPANY_ADMIN, RoleEnum.CONTENT_MANAGER, RoleEnum.SUPER_ADMIN)),
     db: AsyncSession = Depends(get_db),
 ):
+    cat_uuid: uuid.UUID | None = None
+    if category_id and category_id.strip():
+        try:
+            cat_uuid = uuid.UUID(category_id.strip())
+        except ValueError:
+            cat_uuid = None
+
+    clean_search = search.strip() if search and search.strip() else None
+    clean_status = status.strip() if status and status.strip() else None
+
     service = ContentService(db, tenant_id)
     items, pagination = await service.list_services(
         page=page,
         page_size=page_size,
-        search=search,
-        category_id=category_id,
-        status=status,
+        search=clean_search,
+        category_id=cat_uuid,
+        status=clean_status,
         is_featured=is_featured,
         sort_by=sort_by,
         sort_order=sort_order,
