@@ -119,3 +119,4 @@ If you prefer managing each container as a distinct Dokploy Application:
    - Dockerfile path: `/super-admin/Dockerfile`. Context: `/super-admin`.
    - Build Args: `NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com/api/v1`.
    - Port: `3000`. Domain: `super.yourdomain.com`.
+

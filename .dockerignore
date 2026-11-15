@@ -11,3 +11,4 @@ venv
 **/*.sqlite3
 **/.env*.local
 storage/tenants
+
