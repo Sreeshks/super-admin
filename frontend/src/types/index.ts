@@ -117,6 +117,7 @@ export interface Service {
   currency?: string | null;
   duration_minutes?: number | null;
   featured_image?: string | null;
+  image?: string | null;
   image_url?: string | null;
   is_featured: boolean;
   display_order: number;

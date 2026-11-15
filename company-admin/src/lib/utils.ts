@@ -60,3 +60,14 @@ export function formatCurrency(amount: number | null | undefined, currency = "OM
   }
 }
 
+export function getMediaUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.startsWith("/storage/")) {
+    const apiBase =
+      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
+      "https://nofa.api.pixelbusiness.si";
+    return `${apiBase}${url}`;
+  }
+  return url;
+}
+

@@ -8,6 +8,7 @@ import { useTenant } from "@/providers/tenant-provider";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatedBracket } from "@/components/ui/animated-bracket";
+import { getMediaUrl } from "@/lib/utils";
 
 export function CategorySection({ categories = [] }: { categories?: Category[] }) {
   const { makeUrl } = useTenant();
@@ -57,7 +58,8 @@ export function CategorySection({ categories = [] }: { categories?: Category[] }
         {/* Categories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
           {categories.map((cat) => {
-            const img = cat.image_url || getFallback(cat.name);
+            const rawImg = cat.image || cat.image_url;
+            const img = rawImg ? getMediaUrl(rawImg) : getFallback(cat.name);
             return (
               <Link
                 key={cat.id}

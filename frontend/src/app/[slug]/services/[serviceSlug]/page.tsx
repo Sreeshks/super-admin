@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { publicApi } from "@/lib/api";
 import { generateServiceSchema, generateTenantMetadata } from "@/lib/seo";
-import { formatCurrency, formatDuration } from "@/lib/utils";
+import { formatCurrency, formatDuration, getMediaUrl } from "@/lib/utils";
 import { Clock, Calendar, ArrowLeft, Check, Sparkles } from "lucide-react";
 
 interface PageProps {
@@ -26,7 +26,7 @@ export async function generateMetadata(props: PageProps) {
         service.description ||
         `Book ${service.name} at ${data.company.name}. Premium treatments crafted for visible results.`,
       canonicalPath: `/${slug}/services/${serviceSlug}`,
-      image: service.image_url,
+      image: getMediaUrl((service as any).featured_image || service.image || service.image_url),
     });
   } catch {
     return { title: "Service Details" };
@@ -87,7 +87,7 @@ export default async function ServiceDetailPage(props: PageProps) {
           {/* Service Image */}
           <div className="lg:col-span-6 relative h-[380px] sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-100">
             <Image
-              src={service.image_url || defaultImage}
+              src={getMediaUrl((service as any).featured_image || service.image || service.image_url) || defaultImage}
               alt={service.name}
               fill
               priority
@@ -206,7 +206,7 @@ export default async function ServiceDetailPage(props: PageProps) {
                 >
                   <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
                     <Image
-                      src={rel.image_url || defaultImage}
+                      src={getMediaUrl((rel as any).featured_image || rel.image || rel.image_url) || defaultImage}
                       alt={rel.name}
                       fill
                       sizes="80px"

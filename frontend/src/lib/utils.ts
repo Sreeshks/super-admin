@@ -104,3 +104,15 @@ export function sanitizeHtml(html: string): string {
     .replace(/javascript:/gi, "");
 }
 
+export function getMediaUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.startsWith("/storage/")) {
+    const apiBase =
+      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
+      "https://nofa.api.pixelbusiness.si";
+    return `${apiBase}${url}`;
+  }
+  return url;
+}
+
+

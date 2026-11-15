@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoriesApi } from "@/lib/api/categories";
+import { uploadToImgBB } from "@/lib/api/imgbb";
 import { mediaApi } from "@/lib/api/media";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Tags, PlusCircle, Edit2, Trash2, Upload } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getMediaUrl } from "@/lib/utils";
 import { toast } from "sonner";
 import { CategoryCreate, ServiceCategory } from "@/types";
 
@@ -101,7 +102,7 @@ export default function CategoriesPage() {
       description: cat.description || "",
       image: cat.image || "",
       display_order: cat.display_order,
-      is_active: cat.is_active,
+      is_active: cat.is_active ?? ((cat as any).status === "active"),
     });
     setModalOpen(true);
   };
@@ -111,9 +112,9 @@ export default function CategoriesPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const res = await mediaApi.upload(file, "categories");
-      setFormData((prev) => ({ ...prev, image: res.file_url }));
-      toast.success("Category image uploaded!");
+      const imgUrl = await uploadToImgBB(file);
+      setFormData((prev) => ({ ...prev, image: imgUrl }));
+      toast.success("Category image uploaded to ImgBB!");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed";
       toast.error(msg);
@@ -174,7 +175,7 @@ export default function CategoriesPage() {
                         <div className="flex items-center gap-3">
                           {cat.image ? (
                             <img
-                              src={cat.image}
+                              src={getMediaUrl(cat.image)}
                               alt={cat.name}
                               className="h-9 w-9 rounded-lg object-cover border"
                             />
@@ -201,8 +202,8 @@ export default function CategoriesPage() {
                       </TableCell>
 
                       <TableCell>
-                        <Badge variant={cat.is_active ? "success" : "secondary"}>
-                          {cat.is_active ? "Active" : "Inactive"}
+                        <Badge variant={(cat.is_active ?? ((cat as any).status === "active")) ? "success" : "secondary"}>
+                          {(cat.is_active ?? ((cat as any).status === "active")) ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
 

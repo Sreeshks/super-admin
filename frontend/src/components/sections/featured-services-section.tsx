@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Category, Service } from "@/types";
 import { useTenant } from "@/providers/tenant-provider";
-import { formatCurrency, formatDuration } from "@/lib/utils";
+import { formatCurrency, formatDuration, getMediaUrl } from "@/lib/utils";
 import { X, Star, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatedBracket } from "@/components/ui/animated-bracket";
@@ -94,10 +94,10 @@ export function FeaturedServicesSection({
                       : "border-neutral-200 hover:border-neutral-400 bg-white"
                   }`}
                 >
-                  {cat.image_url && (
+                  {(cat.image || cat.image_url) && (
                     <div className="relative w-12 sm:w-14 h-14 sm:h-16 rounded-none overflow-hidden flex-shrink-0 border border-neutral-200">
                       <Image
-                        src={cat.image_url}
+                        src={getMediaUrl(cat.image || cat.image_url)}
                         alt={cat.name}
                         fill
                         sizes="60px"
@@ -142,10 +142,13 @@ export function FeaturedServicesSection({
         {/* Services Grid (Minimal Thin-Border Modular Layout) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-neutral-200 border border-neutral-200">
           {filteredServices.map((service, i) => {
-            const serviceImage =
+            const rawServiceImage =
               service.featured_image ||
-              service.image_url ||
-              "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80";
+              service.image ||
+              service.image_url;
+            const serviceImage = rawServiceImage
+              ? getMediaUrl(rawServiceImage)
+              : "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80";
 
             return (
               <div
@@ -259,10 +262,10 @@ export function FeaturedServicesSection({
             </button>
 
             {/* Service Image */}
-            {(activeModalService.featured_image || activeModalService.image_url) && (
+            {(activeModalService.featured_image || activeModalService.image || activeModalService.image_url) && (
               <div className="relative h-56 w-full overflow-hidden border border-neutral-200">
                 <Image
-                  src={activeModalService.featured_image || activeModalService.image_url!}
+                  src={getMediaUrl(activeModalService.featured_image || activeModalService.image || activeModalService.image_url!)}
                   alt={activeModalService.name}
                   fill
                   sizes="500px"

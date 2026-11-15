@@ -118,10 +118,22 @@ class CategoryCreate(BaseModel):
     slug: str | None = None
     description: str | None = None
     image: str | None = None
+    image_url: str | None = None
     display_order: int = 0
     status: str = Field(default="active", pattern="^(active|inactive)$")
+    is_active: bool | None = None
     seo_title: str | None = None
     seo_description: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_category_create(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "image_url" in data and not data.get("image"):
+                data["image"] = data.get("image_url")
+            if "is_active" in data and not data.get("status"):
+                data["status"] = "active" if data.get("is_active") else "inactive"
+        return data
 
 
 class CategoryUpdate(BaseModel):
@@ -129,10 +141,22 @@ class CategoryUpdate(BaseModel):
     slug: str | None = None
     description: str | None = None
     image: str | None = None
+    image_url: str | None = None
     display_order: int | None = None
     status: str | None = Field(None, pattern="^(active|inactive)$")
+    is_active: bool | None = None
     seo_title: str | None = None
     seo_description: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_category_update(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "image_url" in data and not data.get("image"):
+                data["image"] = data.get("image_url")
+            if "is_active" in data and not data.get("status"):
+                data["status"] = "active" if data.get("is_active") else "inactive"
+        return data
 
 
 class CategoryResponse(BaseModel):
@@ -148,6 +172,16 @@ class CategoryResponse(BaseModel):
     seo_description: str | None = None
     created_at: datetime
     updated_at: datetime
+
+    @computed_field
+    @property
+    def image_url(self) -> str | None:
+        return self.image
+
+    @computed_field
+    @property
+    def is_active(self) -> bool:
+        return self.status == "active"
 
     model_config = ConfigDict(from_attributes=True)
 

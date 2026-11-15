@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { servicesApi, ServiceListParams } from "@/lib/api/services";
+import { uploadToImgBB } from "@/lib/api/imgbb";
 import { categoriesApi } from "@/lib/api/categories";
 import { profileApi } from "@/lib/api/profile";
 import { mediaApi } from "@/lib/api/media";
@@ -34,7 +35,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, getMediaUrl } from "@/lib/utils";
 import { toast } from "sonner";
 import { Service, ServiceCreate, ServiceUpdate } from "@/types";
 
@@ -163,9 +164,9 @@ export default function ServicesPage() {
     if (!file) return;
     setUploadingImage(true);
     try {
-      const res = await mediaApi.upload(file, "services");
-      setFormData((prev) => ({ ...prev, image: res.file_url }));
-      toast.success("Service image uploaded successfully!");
+      const imgUrl = await uploadToImgBB(file);
+      setFormData((prev) => ({ ...prev, image: imgUrl }));
+      toast.success("Service image uploaded to ImgBB!");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Image upload failed";
       toast.error(msg);
@@ -298,7 +299,8 @@ export default function ServicesPage() {
                   {services.map((s) => {
                     const svcPrice = s.price ?? (s as any).regular_price ?? 0;
                     const svcOfferPrice = s.offer_price ?? (s as any).discounted_price;
-                    const svcImage = s.image || (s as any).featured_image;
+                    const rawSvcImage = s.image || (s as any).featured_image;
+                    const svcImage = rawSvcImage ? getMediaUrl(rawSvcImage) : "";
                     const svcCategoryName =
                       categories?.find((c) => c.id === s.category_id)?.name ||
                       s.category?.name ||
