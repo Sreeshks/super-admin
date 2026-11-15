@@ -122,12 +122,12 @@ async def register_nofa_company():
         print("STEP 3: Creating Tenant record...")
         print("=" * 60)
 
-        # website_status set to 'maintenance' as required for unverified/draft status
+        # website_status set to 'active' for immediate public availability
         tenant = Tenant(
             name=company_name,
             slug=slug,
             business_type_id=target_bt.id,
-            website_status="maintenance",
+            website_status="active",
             account_status="active",
         )
         session.add(tenant)
@@ -248,13 +248,13 @@ async def register_nofa_company():
         stmt_role = select(Role).where(Role.name == RoleEnum.COMPANY_ADMIN.value)
         ca_role = (await session.execute(stmt_role)).scalars().first()
 
-        admin_email = "provisioning.nofa@internal.platform.local"
+        admin_email = "admin@nofabeauty.com"
         provisioning_admin = User(
             tenant_id=tenant_id,
             email=admin_email,
-            full_name="Internal Provisioning (Nofa Center)",
-            phone=None,
-            password_hash=hash_password("NofaCenter@Internal2026"),
+            full_name="Nofa Beauty Center Admin",
+            phone="+968 9746 9712",
+            password_hash=hash_password("CompanyAdmin@123456"),
             is_active=True,
         )
         if ca_role:
