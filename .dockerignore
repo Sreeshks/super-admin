@@ -1,0 +1,13 @@
+.git
+.gitignore
+.venv
+venv
+**/node_modules
+**/.next
+**/.pytest_cache
+**/.ruff_cache
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/.env*.local
+storage/tenants

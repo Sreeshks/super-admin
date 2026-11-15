@@ -7,23 +7,26 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install system dependencies (build-essential, libpq-dev for PostgreSQL)
+# Install system dependencies (build-essential, libpq-dev for PostgreSQL, curl for healthchecks)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     curl \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project specification & dependencies
 COPY pyproject.toml .
-RUN pip install .
+RUN pip install --no-cache-dir .
 
 # Copy application codebase
 COPY . .
 
+# Ensure Unix line endings and execute permissions for entrypoint
+RUN dos2unix /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+
 # Expose standard API port
 EXPOSE 8000
 
-# Run database migrations and start server
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
-
+# Run migrations, bootstrap, and start server
+CMD ["/app/entrypoint.sh"]
