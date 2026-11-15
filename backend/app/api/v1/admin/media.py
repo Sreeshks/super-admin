@@ -24,10 +24,14 @@ async def list_media_assets(
     db: AsyncSession = Depends(get_db),
 ):
     repo = TenantAwareRepository(MediaAsset, db, tenant_id)
-    filters = {}
+    filters = []
     if media_type:
-        filters["media_type"] = media_type
-    assets = await repo.list(filters=filters, order_by="created_at", order_desc=True)
+        filters.append(MediaAsset.media_type == media_type)
+    assets = await repo.list(
+        filters=filters,
+        order_by=MediaAsset.created_at.desc(),
+        limit=500,
+    )
     return StandardResponse(
         message="Media assets retrieved successfully",
         data=[MediaAssetResponse.model_validate(a) for a in assets],

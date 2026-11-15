@@ -153,9 +153,15 @@ export default function GalleryPage() {
     toast.success("ImgBB image URL copied to clipboard!");
   };
 
-  const filteredAssets = (assets || []).filter((a) =>
-    a.original_name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredAssets = (assets || []).filter((a) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    const nameMatch = (a.original_name || "").toLowerCase().includes(q);
+    const labelMatch =
+      typeof a.metadata_info?.label === "string" &&
+      a.metadata_info.label.toLowerCase().includes(q);
+    return nameMatch || labelMatch;
+  });
 
   return (
     <DashboardLayout>
@@ -251,7 +257,7 @@ export default function GalleryPage() {
               const labelTag: string =
                 typeof asset.metadata_info?.label === "string"
                   ? asset.metadata_info.label
-                  : asset.original_name.replace(/\.[^/.]+$/, "").toUpperCase();
+                  : (asset.original_name || "PHOTO").replace(/\.[^/.]+$/, "").toUpperCase();
 
               return (
                 <Card

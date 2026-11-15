@@ -36,8 +36,9 @@ class TenantAwareRepository(Generic[TenantModelType]):
 
     async def list(
         self,
-        filters: list[Any] | None = None,
+        filters: list[Any] | dict[str, Any] | None = None,
         order_by: Any | None = None,
+        order_desc: bool = False,
         offset: int = 0,
         limit: int = 100,
         include_deleted: bool = False,
@@ -46,10 +47,21 @@ class TenantAwareRepository(Generic[TenantModelType]):
         if hasattr(self.model, "is_deleted") and not include_deleted:
             stmt = stmt.where(self.model.is_deleted == False)
         if filters:
-            for condition in filters:
-                stmt = stmt.where(condition)
+            if isinstance(filters, dict):
+                for k, v in filters.items():
+                    if hasattr(self.model, k):
+                        stmt = stmt.where(getattr(self.model, k) == v)
+            else:
+                for condition in filters:
+                    stmt = stmt.where(condition)
         if order_by is not None:
-            stmt = stmt.order_by(order_by)
+            if isinstance(order_by, str) and hasattr(self.model, order_by):
+                col = getattr(self.model, order_by)
+                stmt = stmt.order_by(col.desc() if order_desc else col.asc())
+            elif hasattr(order_by, "desc") and order_desc:
+                stmt = stmt.order_by(order_by.desc())
+            else:
+                stmt = stmt.order_by(order_by)
         stmt = stmt.offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         return result.scalars().all()
