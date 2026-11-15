@@ -172,6 +172,8 @@ class ContentService:
             raise ConflictException(f"Category slug '{slug}' already exists in your company")
 
         cat_dict = data.model_dump()
+        cat_dict.pop("image_url", None)
+        cat_dict.pop("is_active", None)
         cat_dict["slug"] = slug
         category = Category(tenant_id=self.tenant_id, **cat_dict)
         self.db.add(category)
@@ -186,6 +188,8 @@ class ContentService:
             raise NotFoundException("Category not found")
 
         update_dict = data.model_dump(exclude_unset=True)
+        update_dict.pop("image_url", None)
+        update_dict.pop("is_active", None)
         if update_dict.get("slug"):
             slug = generate_slug(update_dict["slug"])
             stmt = select(Category).where(
@@ -279,6 +283,8 @@ class ContentService:
             raise ConflictException(f"Service slug '{slug}' already exists in your company")
 
         service_dict = data.model_dump(exclude={"gallery_images"})
+        for extra in ["price", "offer_price", "image", "description", "is_active"]:
+            service_dict.pop(extra, None)
         service_dict["slug"] = slug
         service = Service(tenant_id=self.tenant_id, **service_dict)
         self.db.add(service)
@@ -306,6 +312,8 @@ class ContentService:
             raise NotFoundException("Service not found")
 
         update_dict = data.model_dump(exclude_unset=True, exclude={"gallery_images"})
+        for extra in ["price", "offer_price", "image", "description", "is_active"]:
+            update_dict.pop(extra, None)
 
         if update_dict.get("category_id"):
             cat_repo = TenantAwareRepository(Category, self.db, self.tenant_id)
