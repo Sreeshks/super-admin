@@ -38,6 +38,7 @@ python scripts/seed_data.py || true
 if [ "$AUTO_SEED_DEMO" = "true" ]; then
     echo "==> Seeding demo companies & media..."
     python scripts/seed_demo_company.py || true
+    python scripts/register_nofa_company.py || true
     python scripts/populate_nofa_images.py || true
     python scripts/populate_social_media.py || true
 fi
