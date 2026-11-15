@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Next.js build outputs
+.next/
+out/
+build/
+dist/
+
+# Python Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Testing & Quality Tools
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage/
+.vitest/
+
+# Environment Variables & Secrets
+.env
+.env*.local
+!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database & SQLite files
+*.db
+*.sqlite
+*.sqlite3
+nofa_dev.db
+nofa_test.db
+
+# Storage & Uploads
+backend/storage/tenants/
+storage/tenants/
+storage/uploads/
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Turbopack & Cache
+.turbo/

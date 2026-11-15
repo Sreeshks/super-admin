@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --brand-primary: #111111;       /* Ink Black */
+  --brand-primary-hover: #222222;
+  --brand-secondary: #35251D;     /* Warm Espresso Brown */
+  --brand-accent: #E8DED1;        /* Warm Beige / Sand */
+  --brand-cream: #F7F6F3;         /* Editorial Off-White */
+  --brand-background: #FFFFFF;
+  --brand-surface: #F7F6F3;
+  --brand-text: #111111;
+  --brand-text-muted: #666666;
+  --brand-border: #E5E2DC;
+}
+
+body {
+  background-color: var(--brand-background);
+  color: var(--brand-text);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-luxury {
+  font-family: var(--font-playfair), "Playfair Display", Didot, "Bodoni MT", Georgia, serif;
+}
+
+/* Editorial badge/bracket styling matching Lunaria reference */
+.editorial-bracket {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.editorial-bracket::before {
+  content: "⁽";
+  font-size: 1.25em;
+  font-weight: 400;
+  margin-right: 0.3rem;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.editorial-bracket::after {
+  content: "⁾";
+  font-size: 1.25em;
+  font-weight: 400;
+  margin-left: 0.3rem;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.editorial-bracket-light {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  vertical-align: middle;
+  margin: 0 0.35rem;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+/* Thin clean architectural borders */
+.border-editorial {
+  border-color: #111111;
+}
+
+.border-editorial-subtle {
+  border-color: #E5E2DC;
+}
+
+/* Background utilities */
+.bg-cream {
+  background-color: #F7F6F3;
+}
+
+.bg-espresso {
+  background-color: #35251D;
+}
+
+.bg-warm-beige {
+  background-color: #E8DED1;
+}
