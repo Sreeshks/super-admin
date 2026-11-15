@@ -683,15 +683,39 @@ class TestimonialResponse(BaseModel):
 # 13. Website Sections
 class WebsiteSectionUpdate(BaseModel):
     enabled: bool | None = None
+    is_enabled: bool | None = None
     display_order: int | None = None
     configuration: dict[str, Any] | None = None
+    settings: dict[str, Any] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_section_update(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "is_enabled" in data and "enabled" not in data:
+                data["enabled"] = data.get("is_enabled")
+            if "settings" in data and "configuration" not in data:
+                data["configuration"] = data.get("settings")
+        return data
 
 
 class WebsiteSectionBatchUpdateItem(BaseModel):
     section_key: str
-    enabled: bool
-    display_order: int
+    enabled: bool = True
+    is_enabled: bool | None = None
+    display_order: int = 0
     configuration: dict[str, Any] | None = None
+    settings: dict[str, Any] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_section_batch(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "is_enabled" in data and "enabled" not in data:
+                data["enabled"] = data.get("is_enabled")
+            if "settings" in data and "configuration" not in data:
+                data["configuration"] = data.get("settings")
+        return data
 
 
 class WebsiteSectionBatchUpdate(BaseModel):
@@ -708,6 +732,21 @@ class WebsiteSectionResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def is_enabled(self) -> bool:
+        return self.enabled
+
+    @computed_field
+    @property
+    def display_name(self) -> str:
+        return self.section_key.replace("_", " ").title()
+
+    @computed_field
+    @property
+    def settings(self) -> dict[str, Any] | None:
+        return self.configuration
 
 
 # 14. Contact Details & Enquiries

@@ -89,12 +89,14 @@ export interface WebsiteSection {
   id: string;
   tenant_id: string;
   section_key: string;
-  display_name: string;
-  is_enabled: boolean;
+  display_name?: string;
+  enabled?: boolean;
+  is_enabled?: boolean;
   display_order: number;
+  configuration?: Record<string, unknown> | null;
   settings?: Record<string, unknown> | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ServiceCategory {

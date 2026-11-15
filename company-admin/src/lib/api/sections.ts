@@ -2,15 +2,19 @@ import { apiClient } from "./client";
 import { StandardResponse, WebsiteSection } from "@/types";
 
 export interface SectionUpdatePayload {
+  enabled?: boolean;
   is_enabled?: boolean;
   display_order?: number;
+  configuration?: Record<string, unknown>;
   settings?: Record<string, unknown>;
 }
 
 export interface SectionBatchItem {
   section_key: string;
-  is_enabled: boolean;
+  enabled?: boolean;
+  is_enabled?: boolean;
   display_order: number;
+  configuration?: Record<string, unknown>;
   settings?: Record<string, unknown>;
 }
 

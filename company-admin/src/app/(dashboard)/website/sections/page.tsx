@@ -32,8 +32,14 @@ export default function WebsiteSectionsPage() {
 
   useEffect(() => {
     if (serverSections) {
-      // Sort by display_order
-      const sorted = [...serverSections].sort((a, b) => a.display_order - b.display_order);
+      // Sort by display_order and normalize enabled / is_enabled
+      const sorted = [...serverSections]
+        .map((s) => ({
+          ...s,
+          is_enabled: s.is_enabled ?? s.enabled ?? true,
+          enabled: s.enabled ?? s.is_enabled ?? true,
+        }))
+        .sort((a, b) => a.display_order - b.display_order);
       setSections(sorted);
     }
   }, [serverSections]);
@@ -53,7 +59,12 @@ export default function WebsiteSectionsPage() {
   const toggleSection = (index: number) => {
     setSections((prev) => {
       const copy = [...prev];
-      copy[index] = { ...copy[index], is_enabled: !copy[index].is_enabled };
+      const current = copy[index].is_enabled ?? copy[index].enabled ?? false;
+      copy[index] = {
+        ...copy[index],
+        is_enabled: !current,
+        enabled: !current,
+      };
       return copy;
     });
   };
@@ -81,12 +92,17 @@ export default function WebsiteSectionsPage() {
   };
 
   const handleSave = () => {
-    const payload: SectionBatchItem[] = sections.map((s, index) => ({
-      section_key: s.section_key,
-      is_enabled: s.is_enabled,
-      display_order: index + 1,
-      settings: s.settings || undefined,
-    }));
+    const payload: SectionBatchItem[] = sections.map((s, index) => {
+      const active = s.is_enabled ?? s.enabled ?? true;
+      return {
+        section_key: s.section_key,
+        enabled: active,
+        is_enabled: active,
+        display_order: index + 1,
+        configuration: s.configuration || s.settings || undefined,
+        settings: s.settings || s.configuration || undefined,
+      };
+    });
     batchMutation.mutate(payload);
   };
 
@@ -155,12 +171,12 @@ export default function WebsiteSectionsPage() {
 
                     <div className="flex items-center gap-2">
                       <Button
-                        variant={section.is_enabled ? "outline" : "secondary"}
+                        variant={(section.is_enabled ?? section.enabled) ? "outline" : "secondary"}
                         size="sm"
                         onClick={() => toggleSection(index)}
                         className="text-xs gap-1"
                       >
-                        {section.is_enabled ? (
+                        {(section.is_enabled ?? section.enabled) ? (
                           <>
                             <Eye className="w-3.5 h-3.5 text-emerald-600" />
                             Enabled
